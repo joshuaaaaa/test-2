@@ -1,0 +1,14 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nastavení CSFD News",
+        "description": "Přidejte integraci CSFD News do Home Assistant. Tato integrace automaticky načítá novinky z ČSFD.cz a poskytuje Lovelace kartu pro jejich zobrazení.",
+        "data": {}
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Integrace CSFD News je již nakonfigurována."
+    }
+  }
+}
