@@ -78,8 +78,16 @@ class CSFDNewsSensor(SensorEntity):
         """Fetch new state data for the sensor."""
         try:
             session = async_get_clientsession(self.hass)
+
+            # Add headers to avoid 403 errors from CSFD
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "cs-CZ,cs;q=0.9,en;q=0.8",
+            }
+
             async with async_timeout.timeout(30):
-                async with session.get(CSFD_NEWS_URL) as response:
+                async with session.get(CSFD_NEWS_URL, headers=headers) as response:
                     if response.status != 200:
                         _LOGGER.error(
                             "Error fetching CSFD news: HTTP %s", response.status
@@ -89,7 +97,7 @@ class CSFDNewsSensor(SensorEntity):
                     html = await response.text()
                     self._news_items = await self._parse_news(html)
                     self._state = len(self._news_items)
-                    _LOGGER.debug("Successfully fetched %s news items", self._state)
+                    _LOGGER.info("Successfully fetched %s news items", self._state)
 
         except aiohttp.ClientError as err:
             _LOGGER.error("Error fetching CSFD news: %s", err)
@@ -105,16 +113,28 @@ class CSFDNewsSensor(SensorEntity):
 
             # Find all news articles
             articles = soup.find_all("article", class_="article", limit=MAX_NEWS_ITEMS)
+            _LOGGER.debug("Found %s articles on the page", len(articles))
+
+            if not articles:
+                # Try alternative selectors if the main one doesn't work
+                _LOGGER.warning("No articles found with class 'article', trying alternative selectors")
+                articles = soup.find_all("article")
+                _LOGGER.debug("Found %s articles without class filter", len(articles))
 
             for article in articles[:MAX_NEWS_ITEMS]:
                 try:
                     # Extract title and link
                     title_elem = article.find("h3", class_="article-title")
                     if not title_elem:
-                        continue
+                        # Try alternative selector
+                        title_elem = article.find("h3")
+                        if not title_elem:
+                            _LOGGER.debug("No title element found in article")
+                            continue
 
                     link_elem = title_elem.find("a")
                     if not link_elem:
+                        _LOGGER.debug("No link element found in title")
                         continue
 
                     title = link_elem.get_text(strip=True)
@@ -124,16 +144,22 @@ class CSFDNewsSensor(SensorEntity):
 
                     # Extract image
                     img_elem = article.find("img", class_="article-img")
+                    if not img_elem:
+                        img_elem = article.find("img")
                     image = img_elem.get("src", "") if img_elem else ""
                     if image and not image.startswith("http"):
                         image = f"https://www.csfd.cz{image}"
 
                     # Extract date/time
                     time_elem = article.find("time", class_="article-date")
+                    if not time_elem:
+                        time_elem = article.find("time")
                     date = time_elem.get_text(strip=True) if time_elem else ""
 
                     # Extract perex (short description)
                     perex_elem = article.find("div", class_="article-perex")
+                    if not perex_elem:
+                        perex_elem = article.find("p")
                     perex = perex_elem.get_text(strip=True) if perex_elem else ""
 
                     news_item = {
@@ -145,10 +171,13 @@ class CSFDNewsSensor(SensorEntity):
                     }
 
                     news_items.append(news_item)
+                    _LOGGER.debug("Parsed news item: %s", title)
 
                 except Exception as err:
                     _LOGGER.warning("Error parsing news item: %s", err)
                     continue
+
+            _LOGGER.info("Successfully parsed %s news items", len(news_items))
 
         except Exception as err:
             _LOGGER.error("Error parsing CSFD news HTML: %s", err)
