@@ -2,6 +2,7 @@
 import logging
 import os
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -36,7 +37,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     # Register Lovelace card as frontend resource
-    _register_lovelace_card(hass)
+    try:
+        await _register_lovelace_card(hass)
+    except Exception as err:
+        _LOGGER.warning("Failed to register Lovelace card: %s", err)
 
     # Set up platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -44,22 +48,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-def _register_lovelace_card(hass: HomeAssistant) -> None:
+async def _register_lovelace_card(hass: HomeAssistant) -> None:
     """Register the Lovelace card as a frontend resource."""
     # Get the path to the integration directory
     integration_dir = os.path.dirname(__file__)
 
     # Register static path for serving the card JavaScript file
-    hass.http.register_static_path(
-        "/csfd_news",
-        integration_dir,
-        cache_headers=False
-    )
-
-    _LOGGER.info(
-        "CSFD News Lovelace card available at /csfd_news/csfd-news-card.js - "
-        "Add it to Lovelace resources to use the card"
-    )
+    try:
+        await hass.http.async_register_static_paths(
+            [
+                StaticPathConfig(
+                    url_path="/csfd_news",
+                    path=integration_dir,
+                    cache_headers=False
+                )
+            ]
+        )
+        _LOGGER.info(
+            "CSFD News Lovelace card registered at /csfd_news/csfd-news-card.js"
+        )
+    except Exception as err:
+        _LOGGER.error("Failed to register static path: %s", err)
+        raise
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
