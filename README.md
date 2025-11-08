@@ -12,9 +12,7 @@ Custom integrace a karta pro Home Assistant, která zobrazuje aktuální novinky
 
 ## Instalace
 
-### 1. Instalace Custom Integration
-
-#### Ruční instalace:
+### Ruční instalace:
 
 1. Zkopírujte složku `custom_components/csfd_news` do vašeho Home Assistant konfiguračního adresáře:
    ```
@@ -30,7 +28,9 @@ Custom integrace a karta pro Home Assistant, která zobrazuje aktuální novinky
 
 4. Znovu restartujte Home Assistant
 
-#### HACS instalace (pokud máte HACS):
+**Poznámka:** Lovelace karta se zaregistruje automaticky - není potřeba žádná další instalace!
+
+### HACS instalace (doporučeno):
 
 1. Otevřete HACS v Home Assistantu
 2. Přejděte do "Integrations"
@@ -40,48 +40,29 @@ Custom integrace a karta pro Home Assistant, která zobrazuje aktuální novinky
 6. Klikněte na "Install"
 7. Restartujte Home Assistant
 
-### 2. Instalace Lovelace Karty
-
-#### Ruční instalace:
-
-1. Zkopírujte složku `www/csfd-news-card` do vašeho Home Assistant konfiguračního adresáře:
-   ```
-   <config>/www/csfd-news-card/
-   ```
-
-2. Přidejte kartu jako zdroj v Lovelace:
-   - Přejděte do nastavení Lovelace
-   - Klikněte na tři tečky v pravém horním rohu
-   - Vyberte "Resources"
-   - Klikněte "Add Resource"
-   - URL: `/local/csfd-news-card/csfd-news-card.js`
-   - Resource type: `JavaScript Module`
-
-3. Restartujte Home Assistant (nebo jen obnovte cache prohlížeče)
-
-#### HACS instalace:
-
-1. Otevřete HACS v Home Assistantu
-2. Přejděte do "Frontend"
-3. Klikněte na tři tečky v pravém horním rohu
-4. Vyberte "Custom repositories"
-5. Přidejte URL tohoto repozitáře a vyberte kategorii "Lovelace"
-6. Klikněte na "Install"
-7. Restartujte Home Assistant
+**Poznámka:** Lovelace karta se zaregistruje automaticky při instalaci integrace - není potřeba ji instalovat odděleně jako frontend komponentu!
 
 ## Použití
 
 ### Přidání karty do Lovelace dashboardu:
 
+Karta se automaticky zaregistruje při startu Home Assistant. Pro její použití:
+
 1. Otevřete váš dashboard v režimu editace
 2. Klikněte na "Add Card"
-3. Najděte "CSFD News Card" v seznamu karet
+3. Najděte "CSFD News Card" v seznamu karet (nebo vyhledejte "CSFD")
 4. Nebo použijte manuální konfiguraci:
 
 ```yaml
 type: custom:csfd-news-card
 entity: sensor.csfd_news
 ```
+
+**Pokud karta není viditelná v seznamu karet:**
+- Zkuste vymazat cache prohlížeče (Ctrl+F5)
+- Nebo ručně přidejte zdroj v Lovelace Resources:
+  - URL: `/csfd_news/csfd-news-card.js`
+  - Resource type: `JavaScript Module`
 
 ### Příklad automatizace:
 

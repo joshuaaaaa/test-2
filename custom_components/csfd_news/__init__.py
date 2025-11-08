@@ -1,5 +1,6 @@
 """The CSFD News integration."""
 import logging
+import os
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -16,12 +17,33 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the CSFD News component."""
     hass.data.setdefault(DOMAIN, {})
 
+    # Register Lovelace card as frontend resource
+    _register_lovelace_card(hass)
+
     # Set up sensor platform
     hass.async_create_task(
         hass.helpers.discovery.async_load_platform("sensor", DOMAIN, {}, config)
     )
 
     return True
+
+
+def _register_lovelace_card(hass: HomeAssistant) -> None:
+    """Register the Lovelace card as a frontend resource."""
+    # Get the path to the integration directory
+    integration_dir = os.path.dirname(__file__)
+
+    # Register static path for serving the card JavaScript file
+    hass.http.register_static_path(
+        "/csfd_news",
+        integration_dir,
+        cache_headers=False
+    )
+
+    _LOGGER.info(
+        "CSFD News Lovelace card available at /csfd_news/csfd-news-card.js - "
+        "Add it to Lovelace resources to use the card"
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
