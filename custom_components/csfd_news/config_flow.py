@@ -7,6 +7,7 @@ from typing import Any
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
+import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN
 
@@ -24,7 +25,7 @@ class CSFDNewsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         # Check if already configured
         if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
+            return self.async_abort(reason="already_configured")
 
         if user_input is not None:
             # Create the config entry
@@ -36,4 +37,16 @@ class CSFDNewsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Show the configuration form (empty in this case)
         return self.async_show_form(
             step_id="user",
+        )
+
+    async def async_step_import(self, import_config: dict[str, Any]) -> FlowResult:
+        """Handle import from configuration.yaml."""
+        # Check if already configured
+        if self._async_current_entries():
+            return self.async_abort(reason="already_configured")
+
+        # Create entry from YAML import
+        return self.async_create_entry(
+            title="CSFD News",
+            data={},
         )
