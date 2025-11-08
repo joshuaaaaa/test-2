@@ -35,17 +35,24 @@ async def async_setup_platform(
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up CSFD News sensor from a config entry."""
-    async_add_entities([CSFDNewsSensor(hass)], True)
+    async_add_entities([CSFDNewsSensor(hass, config_entry)], True)
 
 
 class CSFDNewsSensor(SensorEntity):
     """Representation of a CSFD News sensor."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry=None) -> None:
         """Initialize the sensor."""
         self.hass = hass
         self._attr_name = DEFAULT_NAME
-        self._attr_unique_id = f"{DOMAIN}_sensor"
+
+        # Use config entry ID for unique_id if available (for config flow)
+        if config_entry:
+            self._attr_unique_id = f"{DOMAIN}_{config_entry.entry_id}"
+        else:
+            # Legacy unique_id for YAML configuration
+            self._attr_unique_id = f"{DOMAIN}_sensor"
+
         self._state = 0
         self._news_items = []
 

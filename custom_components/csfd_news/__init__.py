@@ -14,16 +14,20 @@ PLATFORMS = [Platform.SENSOR]
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Set up the CSFD News component."""
+    """Set up the CSFD News component from YAML (legacy support)."""
+    # This is kept for backward compatibility but config flow is preferred
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up CSFD News from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
     # Register Lovelace card as frontend resource
     _register_lovelace_card(hass)
 
-    # Set up sensor platform
-    hass.async_create_task(
-        hass.helpers.discovery.async_load_platform("sensor", DOMAIN, {}, config)
-    )
+    # Set up platforms
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
@@ -44,15 +48,6 @@ def _register_lovelace_card(hass: HomeAssistant) -> None:
         "CSFD News Lovelace card available at /csfd_news/csfd-news-card.js - "
         "Add it to Lovelace resources to use the card"
     )
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up CSFD News from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
-
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

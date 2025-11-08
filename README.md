@@ -12,6 +12,27 @@ Custom integrace a karta pro Home Assistant, která zobrazuje aktuální novinky
 
 ## Instalace
 
+### HACS instalace (doporučeno):
+
+1. Otevřete HACS v Home Assistantu
+2. Přejděte do sekce **"Integrations"**
+3. Klikněte na tři tečky v pravém horním rohu
+4. Vyberte **"Custom repositories"**
+5. Přidejte URL tohoto repozitáře a vyberte kategorii **"Integration"**
+6. Klikněte na **"Install"**
+7. Restartujte Home Assistant
+
+### Přidání integrace do Home Assistant:
+
+Po instalaci přes HACS:
+
+1. Přejděte do **Nastavení** → **Zařízení a služby**
+2. Klikněte na **"+ Přidat integraci"** v pravém dolním rohu
+3. Vyhledejte **"CSFD News"**
+4. Klikněte na integraci a potvrďte přidání
+
+✅ **Hotovo!** Integrace je nakonfigurována a Lovelace karta je automaticky dostupná.
+
 ### Ruční instalace:
 
 1. Zkopírujte složku `custom_components/csfd_news` do vašeho Home Assistant konfiguračního adresáře:
@@ -21,26 +42,7 @@ Custom integrace a karta pro Home Assistant, která zobrazuje aktuální novinky
 
 2. Restartujte Home Assistant
 
-3. Přidejte do souboru `configuration.yaml`:
-   ```yaml
-   csfd_news:
-   ```
-
-4. Znovu restartujte Home Assistant
-
-**Poznámka:** Lovelace karta se zaregistruje automaticky - není potřeba žádná další instalace!
-
-### HACS instalace (doporučeno):
-
-1. Otevřete HACS v Home Assistantu
-2. Přejděte do "Integrations"
-3. Klikněte na tři tečky v pravém horním rohu
-4. Vyberte "Custom repositories"
-5. Přidejte URL tohoto repozitáře a vyberte kategorii "Integration"
-6. Klikněte na "Install"
-7. Restartujte Home Assistant
-
-**Poznámka:** Lovelace karta se zaregistruje automaticky při instalaci integrace - není potřeba ji instalovat odděleně jako frontend komponentu!
+3. Přejděte do **Nastavení** → **Zařízení a služby** → **"+ Přidat integraci"** a vyhledejte **"CSFD News"**
 
 ## Použití
 
@@ -108,6 +110,7 @@ V souboru `custom_components/csfd_news/const.py` můžete upravit:
 - Integrace vyžaduje internetové připojení
 - Data jsou načítána z veřejně dostupné stránky ČSFD.cz
 - Pokud se struktura ČSFD stránky změní, může být potřeba aktualizovat parsing logiku
+- **NENÍ potřeba** editovat `configuration.yaml` - integrace se přidává přes UI (Nastavení → Zařízení a služby)
 
 ## Licence
 
