@@ -15,7 +15,19 @@ PLATFORMS = [Platform.SENSOR]
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the CSFD News component from YAML (legacy support)."""
-    # This is kept for backward compatibility but config flow is preferred
+    hass.data.setdefault(DOMAIN, {})
+
+    # Check if YAML configuration exists
+    if DOMAIN in config:
+        # Trigger import flow to migrate to config entry
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": "import"},
+                data={},
+            )
+        )
+
     return True
 
 

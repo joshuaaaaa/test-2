@@ -20,18 +20,18 @@ Custom integrace a karta pro Home Assistant, která zobrazuje aktuální novinky
 4. Vyberte **"Custom repositories"**
 5. Přidejte URL tohoto repozitáře a vyberte kategorii **"Integration"**
 6. Klikněte na **"Install"**
-7. Restartujte Home Assistant
+7. **DŮLEŽITÉ: Restartujte Home Assistant** (Nastavení → Systém → Restartovat)
 
 ### Přidání integrace do Home Assistant:
 
-Po instalaci přes HACS:
+⚠️ **DŮLEŽITÉ:** Po instalaci přes HACS a restartu počkejte cca 1-2 minuty, než se integrace načte!
 
 1. Přejděte do **Nastavení** → **Zařízení a služby**
 2. Klikněte na **"+ Přidat integraci"** v pravém dolním rohu
-3. Vyhledejte **"CSFD News"**
+3. Vyhledejte **"CSFD News"** (pokud ji nevidíte, zkuste obnovit stránku Ctrl+F5)
 4. Klikněte na integraci a potvrďte přidání
 
-✅ **Hotovo!** Integrace je nakonfigurována a Lovelace karta je automaticky dostupná.
+✅ **Hotovo!** Integrace je nakonfigurována a sensor `sensor.csfd_news` je dostupný. Lovelace karta je automaticky zaregistrována.
 
 ### Ruční instalace:
 

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up CSFD News",
+        "description": "Add CSFD News integration to Home Assistant. This integration automatically fetches news from ČSFD.cz and provides a Lovelace card for display."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "CSFD News integration is already configured.",
+      "already_configured": "CSFD News integration is already configured."
+    }
+  },
+  "title": "CSFD News"
+}
