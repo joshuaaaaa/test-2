@@ -1,5 +1,16 @@
 class CSFDNewsCard extends HTMLElement {
+  setConfig(config) {
+    if (!config.entity) {
+      throw new Error('Musíte definovat entitu');
+    }
+    this.config = config;
+  }
+
   set hass(hass) {
+    if (!this.config) {
+      return;
+    }
+
     if (!this._initialized) {
       this._initialized = true;
       const card = document.createElement('ha-card');
@@ -138,8 +149,8 @@ class CSFDNewsCard extends HTMLElement {
     }
 
     const news = state.attributes.news || [];
-    // Display all loaded news by default, or respect config limit
-    const maxItems = this.config.max_items !== undefined ? this.config.max_items : news.length;
+    // Display up to 15 news items by default, or respect config limit
+    const maxItems = this.config.max_items !== undefined ? this.config.max_items : 15;
 
     if (news.length === 0) {
       container.innerHTML = '<div class="loading">Načítání novinek...</div>';
@@ -168,13 +179,6 @@ class CSFDNewsCard extends HTMLElement {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-  }
-
-  setConfig(config) {
-    if (!config.entity) {
-      throw new Error('Musíte definovat entitu');
-    }
-    this.config = config;
   }
 
   getCardSize() {
