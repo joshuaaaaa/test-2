@@ -3,13 +3,29 @@ class CSFDNewsCard extends HTMLElement {
     if (!this._initialized) {
       this._initialized = true;
       const card = document.createElement('ha-card');
-      card.header = 'ČSFD Novinky';
+      card.header = this.config.title || 'ČSFD Novinky';
       this.appendChild(card);
 
       const style = document.createElement('style');
       style.textContent = `
         .csfd-news-container {
           padding: 16px;
+          max-height: 600px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .csfd-news-container::-webkit-scrollbar {
+          width: 8px;
+        }
+        .csfd-news-container::-webkit-scrollbar-track {
+          background: var(--primary-background-color);
+        }
+        .csfd-news-container::-webkit-scrollbar-thumb {
+          background: var(--secondary-text-color);
+          border-radius: 4px;
+        }
+        .csfd-news-container::-webkit-scrollbar-thumb:hover {
+          background: var(--primary-text-color);
         }
         .news-item {
           display: flex;
@@ -20,6 +36,9 @@ class CSFDNewsCard extends HTMLElement {
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           transition: transform 0.2s, box-shadow 0.2s;
           cursor: pointer;
+        }
+        .news-item:last-child {
+          margin-bottom: 0;
         }
         .news-item:hover {
           transform: translateY(-2px);
@@ -37,6 +56,7 @@ class CSFDNewsCard extends HTMLElement {
           flex: 1;
           display: flex;
           flex-direction: column;
+          min-width: 0;
         }
         .news-title {
           font-weight: bold;
@@ -58,6 +78,7 @@ class CSFDNewsCard extends HTMLElement {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+          word-wrap: break-word;
         }
         .no-news {
           padding: 16px;
@@ -69,6 +90,13 @@ class CSFDNewsCard extends HTMLElement {
           text-align: center;
           color: var(--secondary-text-color);
         }
+        .news-count {
+          padding: 8px 16px;
+          font-size: 12px;
+          color: var(--secondary-text-color);
+          text-align: right;
+          border-top: 1px solid var(--divider-color);
+        }
         @media (max-width: 600px) {
           .news-item {
             flex-direction: column;
@@ -79,6 +107,9 @@ class CSFDNewsCard extends HTMLElement {
             margin-right: 0;
             margin-bottom: 8px;
           }
+          .csfd-news-container {
+            max-height: 500px;
+          }
         }
       `;
       card.appendChild(style);
@@ -87,35 +118,55 @@ class CSFDNewsCard extends HTMLElement {
       content.className = 'csfd-news-container';
       content.id = 'news-container';
       card.appendChild(content);
+
+      const footer = document.createElement('div');
+      footer.className = 'news-count';
+      footer.id = 'news-count';
+      card.appendChild(footer);
     }
 
     const entityId = this.config.entity;
     const state = hass.states[entityId];
 
     const container = this.querySelector('#news-container');
+    const footer = this.querySelector('#news-count');
 
     if (!state) {
       container.innerHTML = '<div class="no-news">Entita nenalezena</div>';
+      footer.textContent = '';
       return;
     }
 
     const news = state.attributes.news || [];
+    const maxItems = this.config.max_items || 15;
 
     if (news.length === 0) {
       container.innerHTML = '<div class="loading">Načítání novinek...</div>';
+      footer.textContent = '';
       return;
     }
 
-    container.innerHTML = news.map(item => `
-      <div class="news-item" onclick="window.open('${item.link}', '_blank')">
-        ${item.image ? `<img src="${item.image}" class="news-image" alt="${item.title}" onerror="this.style.display='none'">` : ''}
+    // Limit the number of displayed items
+    const displayNews = news.slice(0, maxItems);
+
+    container.innerHTML = displayNews.map(item => `
+      <div class="news-item" onclick="window.open('${this._escapeHtml(item.link)}', '_blank')">
+        ${item.image ? `<img src="${this._escapeHtml(item.image)}" class="news-image" alt="${this._escapeHtml(item.title)}" onerror="this.style.display='none'">` : ''}
         <div class="news-content">
-          <div class="news-title">${item.title}</div>
-          ${item.date ? `<div class="news-date">${item.date}</div>` : ''}
-          ${item.perex ? `<div class="news-perex">${item.perex}</div>` : ''}
+          <div class="news-title">${this._escapeHtml(item.title)}</div>
+          ${item.date ? `<div class="news-date">${this._escapeHtml(item.date)}</div>` : ''}
+          ${item.perex ? `<div class="news-perex">${this._escapeHtml(item.perex)}</div>` : ''}
         </div>
       </div>
     `).join('');
+
+    footer.textContent = `Zobrazeno ${displayNews.length} z ${news.length} novinek`;
+  }
+
+  _escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   setConfig(config) {
