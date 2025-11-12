@@ -138,7 +138,8 @@ class CSFDNewsCard extends HTMLElement {
     }
 
     const news = state.attributes.news || [];
-    const maxItems = this.config.max_items || 15;
+    // Display all loaded news by default, or respect config limit
+    const maxItems = this.config.max_items !== undefined ? this.config.max_items : news.length;
 
     if (news.length === 0) {
       container.innerHTML = '<div class="loading">Načítání novinek...</div>';
